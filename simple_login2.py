@@ -104,7 +104,7 @@ if st.session_state.get("logged_in"):
 
     # --- Cargar datos desde Supabase ---
     try:
-        response = supabase.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
+        response = admin_client.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
         data = response.data or []
         df = pd.DataFrame(data)
     except Exception:
