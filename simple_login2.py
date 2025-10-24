@@ -2,7 +2,6 @@ import streamlit as st
 from supabase import create_client, Client
 import pandas as pd
 from datetime import datetime
-import psycopg2
 
 # --- Load secrets ---
 PROJECT_URL = st.secrets["PROJECT_URL"]
