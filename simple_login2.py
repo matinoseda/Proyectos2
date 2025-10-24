@@ -2,6 +2,7 @@ import streamlit as st
 from supabase import create_client, Client
 import pandas as pd
 from datetime import datetime
+import time
 import numpy as np
 
 # --- Load secrets ---
@@ -153,8 +154,9 @@ if st.session_state.get("logged_in"):
                 if getattr(insert_resp, "error", None):
                     st.error(f"Error al insertar: {insert_resp.error}")
                 else:
-                    st.success("✅ Cambios guardados correctamente.")
-                    st.toast("✅ Cambios guardados correctamente", icon="💾")
+                    for i in range(3):
+                        st.toast("✅ Cambios guardados correctamente", icon="💾")
+                        time.sleep(2)
                     st.rerun()
             else:
                 st.success("✅ Tabla vaciada correctamente (sin registros para insertar).")
