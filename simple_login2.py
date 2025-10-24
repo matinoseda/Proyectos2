@@ -144,7 +144,7 @@ if st.session_state.get("logged_in"):
 
             # --- BORRAR TODO USANDO admin_client ---
             if admin_client:
-                admin_client.table("user_data").delete().eq("user_id", user_id).execute()
+                admin_client.table("user_data2").delete().eq("user_id", user_id).execute()
             else:
                 st.warning("No se pueden borrar los datos")
 
