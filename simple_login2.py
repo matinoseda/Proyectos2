@@ -155,7 +155,7 @@ if st.session_state.get("logged_in"):
                     st.error(f"Error al insertar: {insert_resp.error}")
                 else:
                     st.toast("✅ Cambios guardados correctamente", icon="💾")
-
+                    time.sleep(0.8)
                     # --- CARGO LA TABLA ACTUALIZADA EN LA WEB --- 
                     try:
                         response = supabase.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
