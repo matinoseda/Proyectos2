@@ -154,9 +154,7 @@ if st.session_state.get("logged_in"):
                 if getattr(insert_resp, "error", None):
                     st.error(f"Error al insertar: {insert_resp.error}")
                 else:
-                    for i in range(3):
-                        st.toast("✅ Cambios guardados correctamente", icon="💾")
-                        time.sleep(2)
+                    st.toast("✅ Cambios guardados correctamente", icon="💾")
                     st.rerun()
             else:
                 st.success("✅ Tabla vaciada correctamente (sin registros para insertar).")
