@@ -10,6 +10,80 @@ PROJECT_URL = st.secrets["PROJECT_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]               # anon key
 SERVICE_ROLE_KEY = st.secrets.get("SUPABASE_SERVICE_ROLE")  # optional
 
+def replace_table_with_retry(admin_client: Client, user_id: str, records: list, max_attempts: int = 2, sleep_time: float = 0.5):
+    """
+    Reemplaza los datos de 'user_data2' por los nuevos 'records' de forma segura usando una tabla temporal,
+    con retry en caso de fallo en las inserciones o borrados.
+    """
+    if not admin_client or not records:
+        st.warning("No se pueden procesar los registros: admin_client no disponible o lista vacía.")
+        return False
+
+    # --- Insertar en tabla temporal ---
+    attempt = 0
+    inserted_tmp = False
+    tmp_records = [{**r, "user_id": user_id} for r in records]  # Asegurarse de que user_id esté presente
+    while attempt < max_attempts and not inserted_tmp:
+        try:
+            resp_tmp = admin_client.table("user_data2_tmp").insert(tmp_records).execute()
+            if getattr(resp_tmp, "error", None):
+                raise Exception(resp_tmp.error)
+            inserted_tmp = True
+        except Exception as e_tmp:
+            attempt += 1
+            if attempt < max_attempts:
+                time.sleep(sleep_time)
+            else:
+                st.error(f"Error al insertar en tabla temporal después de {max_attempts} intentos: {e_tmp}")
+                return False
+
+    # --- Borrar tabla original y reemplazar con temporal ---
+    attempt_replace = 0
+    replaced = False
+    while attempt_replace < max_attempts and not replaced:
+        try:
+            # Borrar datos originales
+            admin_client.table("user_data2").delete().eq("user_id", user_id).execute()
+
+            # Leer datos de la tabla temporal
+            tmp_resp = admin_client.table("user_data2_tmp").select("*").eq("user_id", user_id).execute()
+            tmp_records_filled = tmp_resp.data or []
+
+            # Insertar en tabla original
+            if tmp_records_filled:
+                insert_resp = admin_client.table("user_data2").insert(tmp_records_filled).execute()
+                if getattr(insert_resp, "error", None):
+                    raise Exception(insert_resp.error)
+
+            # Borrar tabla temporal
+            admin_client.table("user_data2_tmp").delete().eq("user_id", user_id).execute()
+
+            replaced = True
+            st.toast("✅ Cambios guardados correctamente", icon="💾")
+            time.sleep(0.8)
+            return True
+
+        except Exception as e:
+            attempt_replace += 1
+            if attempt_replace < max_attempts:
+                time.sleep(sleep_time)
+            else:
+                st.error(f"Error reemplazando la tabla original después de {max_attempts} intentos: {e}")
+                return False
+
+
+        # --- Borrar tabla temporal ---
+        admin_client.table("user_data2_tmp").delete().eq("user_id", user_id).execute()
+
+        if inserted_orig:
+            st.toast("✅ Cambios guardados correctamente", icon="💾")
+            time.sleep(0.8)
+            return True
+
+    except Exception as e:
+        st.error(f"Error reemplazando la tabla original: {e}")
+        return False
+
 
 # --- Create clients ---
 supabase: Client = create_client(PROJECT_URL, SUPABASE_KEY)
@@ -153,30 +227,36 @@ if st.session_state.get("logged_in"):
             edited_df = edited_df.reset_index(drop=True)
             records = edited_df.to_dict(orient="records")
 
-            # --- BORRAR TODO USANDO admin_client ---
+            # --- USANDO INSERT + DELETE SEGURO ---
             if admin_client:
-                admin_client.table("user_data2").delete().eq("user_id", user_id).execute()
+                replace_table_with_retry(admin_client, user_id, records)
             else:
-                st.warning("No se pueden borrar los datos")
+                st.warning("No se pueden guardar los datos: admin_client no disponible.")
 
-            # --- INSERTAR LOS NUEVOS REGISTROS ---
-            if records:
-                insert_resp = admin_client.table("user_data2").insert(records).execute()
-                if getattr(insert_resp, "error", None):
-                    st.error(f"Error al insertar: {insert_resp.error}")
-                else:
-                    st.toast("✅ Cambios guardados correctamente", icon="💾")
-                    time.sleep(0.8)
-                    # --- CARGO LA TABLA ACTUALIZADA EN LA WEB --- 
-                    try:
-                        response = supabase.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
-                        data = response.data or []
-                        df = pd.DataFrame(data)
-                    except Exception:
-                        df = pd.DataFrame(columns=["ean", "price", "last_modification"])
-            else:
-                st.success("✅ Tabla vaciada correctamente (sin registros para insertar).")
-                st.rerun()
+            # # --- BORRAR TODO USANDO admin_client ---
+            # if admin_client:
+            #     admin_client.table("user_data2").delete().eq("user_id", user_id).execute()
+            # else:
+            #     st.warning("No se pueden borrar los datos")
+
+            # # --- INSERTAR LOS NUEVOS REGISTROS ---
+            # if records:
+            #     insert_resp = admin_client.table("user_data2").insert(records).execute()
+            #     if getattr(insert_resp, "error", None):
+            #         st.error(f"Error al insertar: {insert_resp.error}")
+            #     else:
+            #         st.toast("✅ Cambios guardados correctamente", icon="💾")
+            #         time.sleep(0.8)
+            #         # --- CARGO LA TABLA ACTUALIZADA EN LA WEB --- 
+            #         try:
+            #             response = supabase.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
+            #             data = response.data or []
+            #             df = pd.DataFrame(data)
+            #         except Exception:
+            #             df = pd.DataFrame(columns=["ean", "price", "last_modification"])
+            # else:
+            #     st.success("✅ Tabla vaciada correctamente (sin registros para insertar).")
+            #     st.rerun()
 
         except Exception as e:
             st.error(f"Error al guardar los cambios: {e}")
