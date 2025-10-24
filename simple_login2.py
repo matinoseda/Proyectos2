@@ -125,6 +125,7 @@ if st.session_state.get("logged_in"):
             data = response.data or []
             df = pd.DataFrame(data)
             st.success("✅ Tabla actualizada")
+            st.toast("✅ Tabla actualizada", icon="✅")
         except Exception as e:
             st.error(f"Error al refrescar: {e}")
 
