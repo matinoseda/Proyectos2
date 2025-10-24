@@ -149,11 +149,12 @@ if st.session_state.get("logged_in"):
 
             # --- INSERTAR LOS NUEVOS REGISTROS ---
             if records:
-                insert_resp = supabase.table("user_data2").insert(records).execute()
+                insert_resp = admin_client.table("user_data2").insert(records).execute()
                 if getattr(insert_resp, "error", None):
                     st.error(f"Error al insertar: {insert_resp.error}")
                 else:
                     st.success("✅ Cambios guardados correctamente.")
+                    st.toast("✅ Cambios guardados correctamente", icon="💾")
                     st.rerun()
             else:
                 st.success("✅ Tabla vaciada correctamente (sin registros para insertar).")
