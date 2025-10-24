@@ -117,7 +117,17 @@ if st.session_state.get("logged_in"):
     # --- Si está vacía, crear columnas ---
     if df.empty:
         df = pd.DataFrame(columns=["ean", "price", "last_modification"])
-    
+        
+    # --- Botón de refresh ---
+    if st.button("🔄 Refrescar tabla"):
+        try:
+            response = supabase.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
+            data = response.data or []
+            df = pd.DataFrame(data)
+            st.success("✅ Tabla actualizada")
+        except Exception as e:
+            st.error(f"Error al refrescar: {e}")
+
     # --- Editor de datos ---
     edited_df = st.data_editor(
         df,
