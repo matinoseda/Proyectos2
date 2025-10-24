@@ -122,7 +122,7 @@ if st.session_state.get("logged_in"):
     edited_df = st.data_editor(
         df,
         num_rows="dynamic",
-        use_container_width=True,
+        width=True,
         key="user_data2_editor",
         column_config={
             "ean": st.column_config.TextColumn("EAN", help="Código EAN del producto"),
