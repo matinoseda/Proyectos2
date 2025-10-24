@@ -137,7 +137,7 @@ if st.session_state.get("logged_in"):
         column_config={
             "ean": st.column_config.TextColumn("EAN", help="Código EAN del producto"),
             "price": st.column_config.NumberColumn("Precio", help="Precio actual en pesos"),
-            "last_modification": st.column_config.DateColumn("Última Fecha", help="Fecha de actualización de precio", disabled=True),
+            "last_modification": st.column_config.DatetimeColumn("Última Fecha", help="Fecha de actualización de precio", disabled=True),
         },
     )
     
@@ -147,7 +147,7 @@ if st.session_state.get("logged_in"):
             edited_df["ean"].replace("", np.nan, inplace=True)
             edited_df.dropna(subset=["ean"], inplace=True)
 
-            edited_df["last_modification"] = edited_df["last_modification"].fillna(pd.Timestamp.now().date()).astype(str)
+            edited_df["last_modification"] = edited_df["last_modification"].fillna(pd.Timestamp.now()).astype(str)
             edited_df["user_id"] = user_id
  
             edited_df = edited_df.reset_index(drop=True)
