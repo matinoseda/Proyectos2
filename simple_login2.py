@@ -155,7 +155,14 @@ if st.session_state.get("logged_in"):
                     st.error(f"Error al insertar: {insert_resp.error}")
                 else:
                     st.toast("✅ Cambios guardados correctamente", icon="💾")
-                    st.rerun()
+
+                    # --- CARGO LA TABLA ACTUALIZADA EN LA WEB --- 
+                    try:
+                        response = supabase.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
+                        data = response.data or []
+                        df = pd.DataFrame(data)
+                    except Exception:
+                        df = pd.DataFrame(columns=["ean", "price", "last_modification"])
             else:
                 st.success("✅ Tabla vaciada correctamente (sin registros para insertar).")
                 st.rerun()
