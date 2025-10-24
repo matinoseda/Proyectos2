@@ -72,19 +72,6 @@ def replace_table_with_retry(admin_client: Client, user_id: str, records: list, 
                 return False
 
 
-        # --- Borrar tabla temporal ---
-        admin_client.table("user_data2_tmp").delete().eq("user_id", user_id).execute()
-
-        if inserted_orig:
-            st.toast("✅ Cambios guardados correctamente", icon="💾")
-            time.sleep(0.8)
-            return True
-
-    except Exception as e:
-        st.error(f"Error reemplazando la tabla original: {e}")
-        return False
-
-
 # --- Create clients ---
 supabase: Client = create_client(PROJECT_URL, SUPABASE_KEY)
 admin_client = create_client(PROJECT_URL, SERVICE_ROLE_KEY) if SERVICE_ROLE_KEY else None
