@@ -164,11 +164,17 @@ if st.session_state.get("logged_in"):
     st.header(" Visor de Precios")
 
     # --- Cargar datos si es la primera vez o si pidió refresh ---
-    if "df" not in st.session_state or st.session_state.get("refresh", False):
+    if "df" not in st.session_state or st.session_state.get("refresh", True):
         try:
             response = supabase.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
             data = response.data or []
-            st.session_state["df"] = pd.DataFrame(data)
+            aux_df = pd.DataFrame(data)
+            if "last_modification" in aux_df.columns:
+                aux_df["last_modification"] = pd.to_datetime(aux_df["last_modification"], errors="coerce")
+            if df.empty:
+                df = pd.DataFrame(columns=["ean", "price", "last_modification"])
+                
+            st.session_state["df"] = pd.DataFrame(aux_df)
         except Exception as e:
             st.session_state["df"] = pd.DataFrame(columns=["ean", "price", "last_modification"])
         st.session_state["refresh"] = False  # reset del flag
@@ -178,15 +184,7 @@ if st.session_state.get("logged_in"):
     # --- Botón de refresh ---
     if st.button("🔄 Refrescar tabla"):
         st.session_state["refresh"] = True
-        st.rerun()  # vuelve a ejecutar desde arriba y recarga la tabla
-
-    # --- Asegurar tipos ---
-    if "last_modification" in df.columns:
-        df["last_modification"] = pd.to_datetime(df["last_modification"], errors="coerce")
-       
-    # --- Si está vacía, crear columnas ---
-    if df.empty:
-        df = pd.DataFrame(columns=["ean", "price", "last_modification"])
+        st.rerun()  # vuelve a ejecutar todo el código desde el inicio y recarga la tabla
 
     # --- Editor de datos ---
     edited_df = st.data_editor(
