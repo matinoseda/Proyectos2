@@ -163,31 +163,30 @@ if st.session_state.get("logged_in"):
     st.divider()
     st.header(" Visor de Precios")
 
-    # --- Cargar datos desde Supabase ---
-    try:
-        response = supabase.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
-        data = response.data or []
-        df = pd.DataFrame(data)
-    except Exception:
-        df = pd.DataFrame(columns=["ean", "price", "last_modification"])
-    
-    # --- Asegurar tipos correctos ---
-    if "last_modification" in df.columns:
-        df["last_modification"] = pd.to_datetime(df["last_modification"], errors="coerce").dt.date
-    
-    # --- Si está vacía, crear columnas ---
-    if df.empty:
-        df = pd.DataFrame(columns=["ean", "price", "last_modification"])
-        
-    # --- Botón de refresh ---
-    if st.button("🔄 Refrescar tabla"):
+    # --- Cargar datos si es la primera vez o si pidió refresh ---
+    if "df" not in st.session_state or st.session_state.get("refresh", False):
         try:
             response = supabase.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
             data = response.data or []
-            df = pd.DataFrame(data)
-            st.toast("✅ Tabla actualizada", icon="✅")
+            st.session_state["df"] = pd.DataFrame(data)
         except Exception as e:
-            st.error(f"Error al refrescar: {e}")
+            st.session_state["df"] = pd.DataFrame(columns=["ean", "price", "last_modification"])
+        st.session_state["refresh"] = False  # reset del flag
+
+    df = st.session_state["df"]
+
+    # --- Botón de refresh ---
+    if st.button("🔄 Refrescar tabla"):
+        st.session_state["refresh"] = True
+        st.rerun()  # vuelve a ejecutar desde arriba y recarga la tabla
+
+    # --- Asegurar tipos ---
+    if "last_modification" in df.columns:
+        df["last_modification"] = pd.to_datetime(df["last_modification"], errors="coerce")
+       
+    # --- Si está vacía, crear columnas ---
+    if df.empty:
+        df = pd.DataFrame(columns=["ean", "price", "last_modification"])
 
     # --- Editor de datos ---
     edited_df = st.data_editor(
@@ -216,7 +215,10 @@ if st.session_state.get("logged_in"):
 
             # --- USANDO INSERT + DELETE SEGURO ---
             if admin_client:
-                replace_table_with_retry(admin_client, user_id, records)
+                ok = replace_table_with_retry(admin_client, user_id, records)
+                if ok:
+                    st.session_state["refresh"] = True  # marca para recargar
+                    st.rerun()
             else:
                 st.warning("No se pueden guardar los datos: admin_client no disponible.")
 
