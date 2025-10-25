@@ -171,8 +171,8 @@ if st.session_state.get("logged_in"):
             aux_df = pd.DataFrame(data)
             if "last_modification" in aux_df.columns:
                 aux_df["last_modification"] = pd.to_datetime(aux_df["last_modification"], errors="coerce")
-            if df.empty:
-                df = pd.DataFrame(columns=["ean", "price", "last_modification"])
+            if aux_df.empty:
+                aux_df = pd.DataFrame(columns=["ean", "price", "last_modification"])
                 
             st.session_state["df"] = pd.DataFrame(aux_df)
         except Exception as e:
