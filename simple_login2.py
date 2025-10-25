@@ -188,7 +188,7 @@ if st.session_state.get("logged_in"):
 
     # --- Editor de datos ---
     edited_df = st.data_editor(
-        df,
+        st.session_state["df"],
         num_rows="dynamic",
         width='stretch',
         key="user_data2_editor",
@@ -247,9 +247,6 @@ if st.session_state.get("logged_in"):
 
         except Exception as e:
             st.error(f"Error al guardar los cambios: {e}")
-
-
-
 
 # --- Logout ---
 if st.button("Logout"):
