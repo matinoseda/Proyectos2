@@ -207,6 +207,8 @@ if st.session_state.get("logged_in"):
     if st.button("💾 Guardar cambios"):
         try:
             edited_df["ean"].replace("", np.nan, inplace=True)
+            edited_df["precio"].replace({np.nan: None}, inplace=True)
+
             edited_df.dropna(subset=["ean"], inplace=True)
 
             edited_df["last_modification"] = edited_df["last_modification"].fillna(pd.Timestamp.now()).astype(str)
@@ -219,7 +221,7 @@ if st.session_state.get("logged_in"):
             if admin_client:
                 ok = replace_table_with_retry(admin_client, user_id, records)
                 if ok:
-                    #st.session_state["refresh"] = True  # marca para recargar
+                    st.session_state["df"] = edited_df.copy()
                     st.rerun()
             else:
                 st.warning("No se pueden guardar los datos: admin_client no disponible.")
