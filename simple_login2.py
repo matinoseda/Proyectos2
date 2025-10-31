@@ -164,7 +164,7 @@ if st.session_state.get("logged_in"):
     st.header(" Visor de Precios")
 
     # --- Cargar datos si es la primera vez o si pidió refresh ---
-    if "df" not in st.session_state or st.session_state.get("refresh", False):
+    if "df" not in st.session_state: or st.session_state.get("refresh", False):
         try:
             response = supabase.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
             data = response.data or []
@@ -173,11 +173,22 @@ if st.session_state.get("logged_in"):
                 aux_df["last_modification"] = pd.to_datetime(aux_df["last_modification"], errors="coerce")
             if aux_df.empty:
                 aux_df = pd.DataFrame(columns=["ean", "price", "last_modification"])
+                st.toast(f"Trayendo empty DF")
+                
                 
             st.session_state["df"] = pd.DataFrame(aux_df)
+            
         except Exception as e:
             st.session_state["df"] = pd.DataFrame(columns=["ean", "price", "last_modification"])
-        st.session_state["refresh"] = False  # reset del flag
+        
+
+    # if st.session_state.get("refresh", False):
+    #     st.session_state["refresh"] = False
+        
+    #     st.toast(f"Refresh, obtenido: {} ")
+        
+    #     st.session_state["df"]
+
 
     df = st.session_state["df"]
 
