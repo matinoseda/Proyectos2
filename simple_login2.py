@@ -173,10 +173,12 @@ if st.session_state.get("logged_in"):
                 aux_df["last_modification"] = pd.to_datetime(aux_df["last_modification"], errors="coerce")
             if aux_df.empty:
                 aux_df = pd.DataFrame(columns=["ean", "price", "last_modification"])
-                st.toast(f"Trayendo empty DF")
+                st.toast(f"CUIDADO - Trayendo datos vacíos ")
                 
                 
             st.session_state["df"] = pd.DataFrame(aux_df)
+
+            st.toast(f"Tabla refrescada - { datetime.now().strftime("%H:%M:%S") }")
             
         except Exception as e:
             st.session_state["df"] = pd.DataFrame(columns=["ean", "price", "last_modification"])
