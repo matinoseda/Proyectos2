@@ -166,7 +166,7 @@ if st.session_state.get("logged_in"):
     # --- Cargar datos si es la primera vez o si pidió refresh ---
     if "df" not in st.session_state or st.session_state.get("refresh", False):
         try:
-            response = supabase.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
+            response = admin_client.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
             data = response.data or []
             aux_df = pd.DataFrame(data)
             if "last_modification" in aux_df.columns:
