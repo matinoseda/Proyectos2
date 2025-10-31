@@ -164,8 +164,11 @@ if st.session_state.get("logged_in"):
     st.header(" Visor de Precios")
     st.text("(Las filas sin código EAN no se guardarán)")
 
+    if st.button("🔄 Restablecer"):
+        st.session_state["refresh"] = True
+
     # --- Cargar datos si es la primera vez o si pidió refresh ---
-    if "df" not in st.session_state or st.session_state.get("refresh", False) or st.button("🔄 Restablecer"):
+    if "df" not in st.session_state or st.session_state.get("refresh", False):
         try:
             response = admin_client.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
             data = response.data or []
@@ -189,7 +192,6 @@ if st.session_state.get("logged_in"):
     # --- Botón de refresh ---
     # if st.button("🔄 Restablecer"):
     #     st.session_state["refresh"] = True
-        
     #     st.rerun()  # vuelve a ejecutar todo el código desde el inicio y recarga la tabla
 
     # --- Editor de datos ---
