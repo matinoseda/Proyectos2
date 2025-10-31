@@ -164,7 +164,7 @@ if st.session_state.get("logged_in"):
     st.header(" Visor de Precios")
 
     # --- Cargar datos si es la primera vez o si pidió refresh ---
-    if "df" not in st.session_state: or st.session_state.get("refresh", False):
+    if "df" not in st.session_state or st.session_state.get("refresh", False):
         try:
             response = supabase.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
             data = response.data or []
