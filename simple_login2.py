@@ -180,12 +180,13 @@ if st.session_state.get("logged_in"):
                 st.toast(f"CUIDADO - Trayendo datos vacíos ")
                 
                 
-            st.session_state["df"] = pd.DataFrame(aux_df)
+            st.session_state["df"] = aux_df.copy()
+            
             if st.session_state.get("refresh", False):
                 st.toast(f"Tabla refrescada - { datetime.now().strftime( "%H:%M:%S.%f" ) }")
             
         except Exception as e:
-            st.session_state["df"] = pd.DataFrame(columns=["ean", "price", "last_modification"])
+            st.session_state["df"] = pd.DataFrame(columns=["ean", "price", "last_modification"]).copy()
     
         st.session_state["refresh"] = False
 
@@ -196,7 +197,7 @@ if st.session_state.get("logged_in"):
 
     # --- Editor de datos ---
     edited_df = st.data_editor(
-        st.session_state["df"].copy(),
+        st.session_state["df"],
         num_rows="dynamic",
         width='stretch',
         key="user_data2_editor",
@@ -223,7 +224,7 @@ if st.session_state.get("logged_in"):
             if admin_client:
                 ok = replace_table_with_retry(admin_client, user_id, records)
                 if ok:
-                    st.session_state["refresh"] = True  # marca para recargar
+                    #st.session_state["refresh"] = True  # marca para recargar
                     st.rerun()
             else:
                 st.warning("No se pueden guardar los datos: admin_client no disponible.")
