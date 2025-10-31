@@ -190,11 +190,6 @@ if st.session_state.get("logged_in"):
     
         st.session_state["refresh"] = False
 
-    # --- Botón de refresh ---
-    # if st.button("🔄 Restablecer"):
-    #     st.session_state["refresh"] = True
-    #     st.rerun()  # vuelve a ejecutar todo el código desde el inicio y recarga la tabla
-
     # --- Editor de datos ---
     edited_df = st.data_editor(
         st.session_state["df"],
