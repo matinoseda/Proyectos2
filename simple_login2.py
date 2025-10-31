@@ -178,7 +178,7 @@ if st.session_state.get("logged_in"):
                 
             st.session_state["df"] = pd.DataFrame(aux_df)
 
-            st.toast(f"Tabla refrescada - { datetime.now().strftime("%H:%M:%S") }")
+            st.toast(f"Tabla refrescada - { datetime.now().strftime( "%H:%M:%S.%f" ) }")
             
         except Exception as e:
             st.session_state["df"] = pd.DataFrame(columns=["ean", "price", "last_modification"])
