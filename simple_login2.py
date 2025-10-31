@@ -183,7 +183,8 @@ if st.session_state.get("logged_in"):
             
         except Exception as e:
             st.session_state["df"] = pd.DataFrame(columns=["ean", "price", "last_modification"])
-        
+    
+        st.session_state["refresh"] = False
 
     # if st.session_state.get("refresh", False):
     #     st.session_state["refresh"] = False
