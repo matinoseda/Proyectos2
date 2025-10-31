@@ -207,7 +207,7 @@ if st.session_state.get("logged_in"):
     if st.button("💾 Guardar cambios"):
         try:
             edited_df["ean"].replace("", np.nan, inplace=True)
-            edited_df["precio"].replace({np.nan: None}, inplace=True)
+            edited_df["price"].replace({np.nan: None}, inplace=True)
 
             edited_df.dropna(subset=["ean"], inplace=True)
 
