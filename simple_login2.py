@@ -162,6 +162,7 @@ if st.session_state.get("logged_in"):
 
     st.divider()
     st.header(" Visor de Precios")
+    st.text("(Las filas sin código EAN no se guardarán)")
 
     # --- Cargar datos si es la primera vez o si pidió refresh ---
     if "df" not in st.session_state or st.session_state.get("refresh", False):
