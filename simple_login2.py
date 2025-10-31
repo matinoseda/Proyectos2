@@ -196,7 +196,7 @@ if st.session_state.get("logged_in"):
 
     # --- Editor de datos ---
     edited_df = st.data_editor(
-        st.session_state["df"],
+        st.session_state["df"].copy(),
         num_rows="dynamic",
         width='stretch',
         key="user_data2_editor",
