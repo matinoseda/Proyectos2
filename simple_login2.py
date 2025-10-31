@@ -165,7 +165,7 @@ if st.session_state.get("logged_in"):
     st.text("(Las filas sin código EAN no se guardarán)")
 
     # --- Cargar datos si es la primera vez o si pidió refresh ---
-    if "df" not in st.session_state or st.session_state.get("refresh", False):
+    if "df" not in st.session_state or st.session_state.get("refresh", False) or st.button("🔄 Restablecer"):
         try:
             response = admin_client.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
             data = response.data or []
@@ -186,20 +186,11 @@ if st.session_state.get("logged_in"):
     
         st.session_state["refresh"] = False
 
-    # if st.session_state.get("refresh", False):
-    #     st.session_state["refresh"] = False
-        
-    #     st.toast(f"Refresh, obtenido: {} ")
-        
-    #     st.session_state["df"]
-
-
-    df = st.session_state["df"]
-
     # --- Botón de refresh ---
-    if st.button("🔄 Restablecer"):
-        st.session_state["refresh"] = True
-        st.rerun()  # vuelve a ejecutar todo el código desde el inicio y recarga la tabla
+    # if st.button("🔄 Restablecer"):
+    #     st.session_state["refresh"] = True
+        
+    #     st.rerun()  # vuelve a ejecutar todo el código desde el inicio y recarga la tabla
 
     # --- Editor de datos ---
     edited_df = st.data_editor(
