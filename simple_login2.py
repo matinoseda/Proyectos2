@@ -204,7 +204,7 @@ if st.session_state.get("logged_in"):
     )
     
     # --- Guardar cambios ---
-    if st.button("💾 Guardar cambios en Supabase"):
+    if st.button("💾 Guardar cambios"):
         try:
             edited_df["ean"].replace("", np.nan, inplace=True)
             edited_df.dropna(subset=["ean"], inplace=True)
@@ -223,31 +223,6 @@ if st.session_state.get("logged_in"):
                     st.rerun()
             else:
                 st.warning("No se pueden guardar los datos: admin_client no disponible.")
-
-            # # --- BORRAR TODO USANDO admin_client ---
-            # if admin_client:
-            #     admin_client.table("user_data2").delete().eq("user_id", user_id).execute()
-            # else:
-            #     st.warning("No se pueden borrar los datos")
-
-            # # --- INSERTAR LOS NUEVOS REGISTROS ---
-            # if records:
-            #     insert_resp = admin_client.table("user_data2").insert(records).execute()
-            #     if getattr(insert_resp, "error", None):
-            #         st.error(f"Error al insertar: {insert_resp.error}")
-            #     else:
-            #         st.toast("✅ Cambios guardados correctamente", icon="💾")
-            #         time.sleep(0.8)
-            #         # --- CARGO LA TABLA ACTUALIZADA EN LA WEB --- 
-            #         try:
-            #             response = supabase.table("user_data2").select("ean, price, last_modification").eq("user_id", user_id).execute()
-            #             data = response.data or []
-            #             df = pd.DataFrame(data)
-            #         except Exception:
-            #             df = pd.DataFrame(columns=["ean", "price", "last_modification"])
-            # else:
-            #     st.success("✅ Tabla vaciada correctamente (sin registros para insertar).")
-            #     st.rerun()
 
         except Exception as e:
             st.error(f"Error al guardar los cambios: {e}")
