@@ -1,30 +1,24 @@
 # Proyectos2
 
 
-import pandas as pd
+# first 2 columns of df2
+first_cols = df2.iloc[:, :2]
 
-# Example dataframes
-df1 = pd.DataFrame([[1, 2, 3],
-                    [4, 5, 6],
-                    [7, 8, 9]])
+# remaining columns
+df1_rest = df1
+df2_rest = df2.iloc[:, 2:]
 
-df2 = pd.DataFrame([[10, 20, 30],
-                    [40, 50, 60],
-                    [70, 80, 90]])
+# intercalate columns
+intercalated_cols = []
+for i in range(df1_rest.shape[1]):
+    intercalated_cols.append(df1_rest.iloc[:, i])
+    intercalated_cols.append(df2_rest.iloc[:, i])
 
-# Interleave columns
-interleaved_df = pd.concat(
-    [df1.iloc[:, i].rename(f"df1_{i}") for i in range(df1.shape[1])] +
-    [df2.iloc[:, i].rename(f"df2_{i}") for i in range(df2.shape[1])],
-    axis=1
-)
+# build final dataframe
+df_final = pd.concat([first_cols] + intercalated_cols, axis=1)
 
-# Reorder columns to interleave properly
-cols = []
-for i in range(df1.shape[1]):
-    cols.extend([f"df1_{i}", f"df2_{i}"])
-
-interleaved_df = interleaved_df[cols]
+# generate CSV string
+csv_string = df_final.to_csv(index=False)
 
 # Convert to CSV string
 csv_string = interleaved_df.to_csv(index=False)
